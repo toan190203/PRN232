@@ -1,0 +1,141 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.ApplicationResponseDTO>
+
+@{
+    ViewData["Title"] = "Applications Management";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-text"></i> Applications Management</h2>
+            @if (ViewBag.JobTitle != null)
+            {
+                <p class="text-muted">Showing applications for: <strong>@ViewBag.JobTitle</strong></p>
+            }
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Jobs" asp-action="MyJobs" class="btn btn-primary">
+                <i class="bi bi-list-ul"></i> My Jobs
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Applications</h6>
+                        <h3 class="text-primary">@Model.Count()</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pending</h6>
+                        <h3 class="text-warning">@Model.Count(a => a.Status == "Pending")</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Accepted</h6>
+                        <h3 class="text-success">@Model.Count(a => a.Status == "Accepted")</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Rejected</h6>
+                        <h3 class="text-danger">@Model.Count(a => a.Status == "Rejected")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Student</th>
+                        <th>Job Title</th>
+                        <th>Application Date</th>
+                        <th>Cover Letter</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var application in Model.OrderByDescending(a => a.ApplicationDate))
+                    {
+                        <tr>
+                            <td><strong>@application.StudentName</strong></td>
+                            <td>@application.JobTitle</td>
+                            <td>@application.ApplicationDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(application.CoverLetter))
+                                {
+                                    <span>@(application.CoverLetter.Length > 50 ? application.CoverLetter.Substring(0, 50) + "..." : application.CoverLetter)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No cover letter</span>
+                                }
+                            </td>
+                            <td>
+                                @switch (application.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case "Accepted":
+                                        <span class="badge bg-success">Accepted</span>
+                                        break;
+                                    case "Rejected":
+                                        <span class="badge bg-danger">Rejected</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@application.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@application.ApplicationId" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    @if (application.Status == "Pending")
+                                    {
+                                        <form asp-action="Accept" asp-route-id="@application.ApplicationId" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Accept this application?')">
+                                                <i class="bi bi-check-circle"></i> Accept
+                                            </button>
+                                        </form>
+                                        <form asp-action="Reject" asp-route-id="@application.ApplicationId" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Reject this application?')">
+                                                <i class="bi bi-x-circle"></i> Reject
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No applications yet</h4>
+            <p>Applications will appear here when students apply for your jobs. <a asp-controller="Jobs" asp-action="MyJobs" class="alert-link">View your jobs</a> to see if they're active.</p>
+        </div>
+    }
+</div>

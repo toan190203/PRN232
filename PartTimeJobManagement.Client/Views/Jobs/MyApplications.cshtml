@@ -1,0 +1,79 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.ApplicationResponseDTO>
+
+@{
+    ViewData["Title"] = "My Applications";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>My Job Applications</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Index" class="btn btn-primary">Browse Jobs</a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var application in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@application.JobTitle</h5>
+                            @switch (application.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    break;
+                                case "Accepted":
+                                    <span class="badge bg-success">Accepted</span>
+                                    break;
+                                case "Rejected":
+                                    <span class="badge bg-danger">Rejected</span>
+                                    break;
+                                case "Withdrawn":
+                                    <span class="badge bg-secondary">Withdrawn</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-info">@application.Status</span>
+                                    break;
+                            }
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Employer:</strong> @application.EmployerName</p>
+                            <p><strong>Applied:</strong> @application.ApplicationDate.ToString("MMM dd, yyyy")</p>
+                            
+                            @if (!string.IsNullOrEmpty(application.CoverLetter))
+                            {
+                                <hr />
+                                <h6>Cover Letter:</h6>
+                                <p class="text-muted small">@application.CoverLetter</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a asp-action="Details" asp-route-id="@application.JobId" class="btn btn-sm btn-outline-primary">View Job</a>
+                            
+                            @if (application.Status == "Pending")
+                            {
+                                <form asp-action="WithdrawApplication" asp-route-id="@application.ApplicationId" method="post" style="display:inline;" 
+                                      onsubmit="return confirm('Are you sure you want to withdraw this application?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Withdraw</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No applications yet</h4>
+            <p>You haven't applied for any jobs. <a asp-action="Index" class="alert-link">Browse available jobs</a> to get started!</p>
+        </div>
+    }
+</div>

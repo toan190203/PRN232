@@ -1,0 +1,211 @@
+@using PartTimeJobManagement.Client.Controllers
+@model AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <h2>@Model.TotalUsers</h2>
+                    <p class="mb-0"><small>@Model.TotalStudents Students | @Model.TotalEmployers Employers</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Jobs</h5>
+                    <h2>@Model.TotalJobs</h2>
+                    <p class="mb-0"><small>@Model.ActiveJobs Active Jobs</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Applications</h5>
+                    <h2>@Model.TotalApplications</h2>
+                    <p class="mb-0"><small>@Model.PendingApplications Pending</small></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <a asp-action="Users" class="btn btn-light btn-sm">Manage Users</a>
+                    <a asp-action="Jobs" class="btn btn-light btn-sm mt-2">Manage Jobs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Users</h5>
+                    <a asp-action="Users" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentUsers != null && Model.RecentUsers.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.RecentUsers)
+                                    {
+                                        <tr>
+                                            <td>@user.FullName</td>
+                                            <td>@user.Email</td>
+                                            <td><span class="badge bg-secondary">@user.RoleName</span></td>
+                                            <td>
+                                                @if (user.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No users found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Jobs</h5>
+                    <a asp-action="Jobs" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentJobs != null && Model.RecentJobs.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Employer</th>
+                                        <th>Salary</th>
+                                        <th>Status</th>
+                                        <th>Posted</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var job in Model.RecentJobs)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId">
+                                                    @job.Title
+                                                </a>
+                                            </td>
+                                            <td>@job.EmployerName</td>
+                                            <td>$@job.Salary</td>
+                                            <td>
+                                                @if (job.Status == "Open")
+                                                {
+                                                    <span class="badge bg-success">Open</span>
+                                                }
+                                                else if (job.Status == "Closed")
+                                                {
+                                                    <span class="badge bg-danger">Closed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">@job.Status</span>
+                                                }
+                                            </td>
+                                            <td>@job.PostedDate.ToString("MMM dd")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No jobs found.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Links -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Management Modules</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people fs-1 text-primary"></i>
+                                    <h5 class="mt-2">User Management</h5>
+                                    <p class="text-muted">Manage users, roles, and permissions</p>
+                                    <a asp-action="Users" class="btn btn-primary">Manage Users</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-briefcase fs-1 text-success"></i>
+                                    <h5 class="mt-2">Job Management</h5>
+                                    <p class="text-muted">Monitor and manage job postings</p>
+                                    <a asp-action="Jobs" class="btn btn-success">Manage Jobs</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-file-text fs-1 text-warning"></i>
+                                    <h5 class="mt-2">Applications</h5>
+                                    <p class="text-muted">View all applications and status</p>
+                                    <a asp-action="Applications" class="btn btn-warning">View Applications</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

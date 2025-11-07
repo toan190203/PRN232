@@ -1,0 +1,142 @@
+@model PartTimeJobManagement.Client.Models.DTOs.EmployerResponseDTO
+
+@{
+    ViewData["Title"] = "Company Profile";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-building" style="font-size: 6rem; color: #198754;"></i>
+                    </div>
+                    <h5>@Model.CompanyName</h5>
+                    <p class="text-muted">@Model.Email</p>
+                    <a asp-action="EditEmployerProfile" class="btn btn-success w-100 mb-2">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                    <a asp-action="ChangePassword" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-building"></i> Company Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Company Name</label>
+                            <p>@Model.CompanyName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Email</label>
+                            <p>@Model.Email</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Tax Code</label>
+                            <p>@(Model.TaxCode ?? "Not provided")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Contact Name</label>
+                            <p>@(Model.ContactName ?? "Not provided")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Phone Number</label>
+                            <p>@(Model.PhoneNumber ?? "Not provided")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Verification Status</label>
+                            <p>
+                                @if (Model.IsVerified)
+                                {
+                                    <span class="badge bg-success">Verified</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending Verification</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Account Status</label>
+                            <p>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Member Since</label>
+                            <p>@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="fw-bold">Address</label>
+                            <p>@(Model.Address ?? "Not provided")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="fw-bold">Total Jobs Posted</label>
+                            <h3 class="text-success">@Model.TotalJobs</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-activity"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a asp-controller="Jobs" asp-action="Create" class="btn btn-outline-success w-100">
+                                <i class="bi bi-plus-circle"></i> Post Job
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a asp-controller="Jobs" asp-action="MyJobs" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-list-ul"></i> My Jobs
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a asp-controller="Applications" asp-action="Index" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-file-earmark-text"></i> Applications
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a asp-controller="Contracts" asp-action="Index" class="btn btn-outline-info w-100">
+                                <i class="bi bi-file-earmark-check"></i> Contracts
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

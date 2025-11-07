@@ -1,0 +1,83 @@
+@model PartTimeJobManagement.Client.Models.DTOs.CreatePaymentDTO
+
+@{
+    ViewData["Title"] = "Create Payment";
+    var contract = ViewBag.Contract as PartTimeJobManagement.Client.Models.DTOs.ContractResponseDTO;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-cash-coin"></i> Create Payment</h4>
+                </div>
+                <div class="card-body">
+                    @if (contract != null)
+                    {
+                        <div class="alert alert-info mb-4">
+                            <h5><i class="bi bi-info-circle"></i> Contract Information</h5>
+                            <p class="mb-1"><strong>Job:</strong> @contract.JobTitle</p>
+                            <p class="mb-1"><strong>Student:</strong> @contract.StudentName</p>
+                            <p class="mb-1"><strong>Salary Agreed:</strong> $@contract.SalaryAgreed</p>
+                            <p class="mb-0"><strong>Period:</strong> @contract.StartDate.ToString("MMM dd, yyyy") - @(contract.EndDate?.ToString("MMM dd, yyyy") ?? "Ongoing")</p>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <input type="hidden" asp-for="ContractId" />
+
+                        <div class="mb-3">
+                            <label asp-for="Amount" class="form-label">Payment Amount ($)</label>
+                            <input asp-for="Amount" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                            <span asp-validation-for="Amount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PaymentMethod" class="form-label">Payment Method</label>
+                            <select asp-for="PaymentMethod" class="form-select">
+                                <option value="">-- Select Payment Method --</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Check">Check</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Description (Optional)</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Add any description about this payment..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>Important:</strong> Please verify the payment amount and method before submitting. The student will be notified once the payment is recorded.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ContractId" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Create Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            var today = new Date().toISOString().split('T')[0];
+            $('#PaymentDate').attr('max', today);
+        });
+    </script>
+}

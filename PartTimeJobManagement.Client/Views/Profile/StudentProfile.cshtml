@@ -1,0 +1,124 @@
+@model PartTimeJobManagement.Client.Models.DTOs.StudentResponseDTO
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 6rem; color: #0d6efd;"></i>
+                    </div>
+                    <h5>@Model.FullName</h5>
+                    <p class="text-muted">@Model.Email</p>
+                    <a asp-action="EditStudentProfile" class="btn btn-primary w-100 mb-2">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                    <a asp-action="ChangePassword" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-badge"></i> Student Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Full Name</label>
+                            <p>@Model.FullName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Email</label>
+                            <p>@Model.Email</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Phone Number</label>
+                            <p>@(Model.PhoneNumber ?? "Not provided")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Major</label>
+                            <p>@(Model.Major ?? "Not provided")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Year of Study</label>
+                            <p>@(Model.YearOfStudy.HasValue ? "Year " + Model.YearOfStudy.Value : "Not provided")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">CV File</label>
+                            <p>@(Model.Cvfile ?? "Not uploaded")</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Account Status</label>
+                            <p>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Member Since</label>
+                            <p>@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-activity"></i> Application Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h3 class="text-primary">@Model.TotalApplications</h3>
+                                <p class="text-muted mb-0">Total Applications</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-search"></i> Browse Jobs
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <a asp-controller="Jobs" asp-action="MyApplications" class="btn btn-outline-success w-100">
+                                    <i class="bi bi-file-earmark-text"></i> My Applications
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

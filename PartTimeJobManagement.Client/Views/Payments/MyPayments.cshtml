@@ -1,0 +1,114 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.PaymentResponseDTO>
+
+@{
+    ViewData["Title"] = "My Payments";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-cash-stack"></i> My Payment History</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Contracts" asp-action="MyContracts" class="btn btn-primary">
+                <i class="bi bi-file-earmark-check"></i> My Contracts
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Payments</h6>
+                        <h3 class="text-primary">@Model.Count()</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Earned</h6>
+                        <h3 class="text-success">$@Model.Sum(p => p.Amount)</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">This Month</h6>
+                        <h3 class="text-info">$@Model.Where(p => p.PaymentDate.Month == DateTime.Now.Month && p.PaymentDate.Year == DateTime.Now.Year).Sum(p => p.Amount)</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <h6 class="text-muted">Pending</h6>
+                        <h3 class="text-warning">@Model.Count(p => p.Status == "Pending")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Payment History</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Amount</th>
+                                <th>Payment Date</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model.OrderByDescending(p => p.PaymentDate))
+                            {
+                                <tr>
+                                    <td><strong>@payment.JobTitle</strong></td>
+                                    <td><span class="text-success fw-bold">$@payment.Amount</span></td>
+                                    <td>@payment.PaymentDate.ToString("MMM dd, yyyy")</td>
+                                    <td><span class="badge bg-secondary">@payment.PaymentMethod</span></td>
+                                    <td>
+                                        @switch (payment.Status)
+                                        {
+                                            case "Completed":
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case "Pending":
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                break;
+                                            case "Failed":
+                                                <span class="badge bg-danger">Failed</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-secondary">@payment.Status</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(payment.Description ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No payments yet</h4>
+            <p>Your payment history will appear here once you receive payments from employers. <a asp-controller="Contracts" asp-action="MyContracts" class="alert-link">View your contracts</a>.</p>
+        </div>
+    }
+</div>

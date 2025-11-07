@@ -1,0 +1,136 @@
+@model List<PartTimeJobManagement.Client.Models.DTOs.EmployerResponseDTO>
+
+@{
+    ViewData["Title"] = "Employer Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Employer Management</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Search and Filter -->
+    <form method="get" asp-action="Employers" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" name="search" class="form-control" placeholder="Search by company name or contact..." value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-3">
+                <select name="verified" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Verified" selected="@(ViewBag.Verified == "Verified")">Verified</option>
+                    <option value="Pending" selected="@(ViewBag.Verified == "Pending")">Pending Verification</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Employers Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Employers (@Model.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Company Name</th>
+                                <th>Contact Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Tax Code</th>
+                                <th>Verification Status</th>
+                                <th>Total Jobs</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employer in Model)
+                            {
+                                <tr>
+                                    <td>@employer.EmployerId</td>
+                                    <td><strong>@employer.CompanyName</strong></td>
+                                    <td>@(employer.ContactName ?? "N/A")</td>
+                                    <td>@(employer.PhoneNumber ?? "N/A")</td>
+                                    <td>@employer.Email</td>
+                                    <td>@(employer.TaxCode ?? "N/A")</td>
+                                    <td>
+                                        @if (employer.IsVerified)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Verified
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-clock"></i> Pending Verification
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>@employer.TotalJobs</td>
+                                    <td>
+                                        @if (!employer.IsVerified)
+                                        {
+                                            <form method="post" asp-action="VerifyEmployer" asp-route-id="@employer.EmployerId" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-success" 
+                                                        onclick="return confirm('Verify employer @employer.CompanyName?')">
+                                                    <i class="bi bi-check-circle"></i> Verify
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-action="UnverifyEmployer" asp-route-id="@employer.EmployerId" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-warning" 
+                                                        onclick="return confirm('Unverify employer @employer.CompanyName?')">
+                                                    <i class="bi bi-x-circle"></i> Unverify
+                                                </button>
+                                            </form>
+                                        }
+                                        <a asp-controller="Profile" asp-action="EmployerProfile" asp-route-id="@employer.EmployerId" 
+                                           class="btn btn-sm btn-info" target="_blank">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center">No employers found.</p>
+            }
+        </div>
+    </div>
+</div>

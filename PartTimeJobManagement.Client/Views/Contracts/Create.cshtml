@@ -1,0 +1,77 @@
+@model PartTimeJobManagement.Client.Models.DTOs.CreateContractDTO
+
+@{
+    ViewData["Title"] = "Create Contract";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="bi bi-file-earmark-plus"></i> Create New Contract</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <input type="hidden" asp-for="ApplicationId" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label">Start Date</label>
+                                <input asp-for="StartDate" type="date" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label">End Date</label>
+                                <input asp-for="EndDate" type="date" class="form-control" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SalaryAgreed" class="form-label">Salary Agreed ($)</label>
+                            <input asp-for="SalaryAgreed" type="number" step="0.01" class="form-control" placeholder="1500.00" />
+                            <span asp-validation-for="SalaryAgreed" class="text-danger"></span>
+                            <small class="text-muted">Total salary for the contract period</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ContractFile" class="form-label">Contract File (Optional)</label>
+                            <input asp-for="ContractFile" type="text" class="form-control" placeholder="Enter file path or URL" />
+                            <span asp-validation-for="ContractFile" class="text-danger"></span>
+                            <small class="text-muted">Path to the signed contract document</small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> <strong>Note:</strong> Make sure all details are correct before creating the contract. The student will be notified once the contract is created.
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Applications" asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i> Create Contract
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            var today = new Date().toISOString().split('T')[0];
+            $('#StartDate').attr('min', today);
+            
+            $('#StartDate').change(function() {
+                var startDate = $(this).val();
+                $('#EndDate').attr('min', startDate);
+            });
+        });
+    </script>
+}

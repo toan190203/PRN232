@@ -1,0 +1,106 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.PaymentResponseDTO>
+
+@{
+    ViewData["Title"] = "Payments Management";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-cash-stack"></i> Payments Management</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Contracts" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-file-earmark-check"></i> View Contracts
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Student</th>
+                        <th>Amount</th>
+                        <th>Payment Date</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Note</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payment in Model)
+                    {
+                        <tr>
+                            <td><strong>@payment.JobTitle</strong></td>
+                            <td>@payment.StudentName</td>
+                            <td><span class="text-success fw-bold">$@payment.Amount</span></td>
+                            <td>@payment.PaymentDate.ToString("MMM dd, yyyy")</td>
+                            <td>@payment.PaymentMethod</td>
+                            <td>
+                                @switch (payment.Status)
+                                {
+                                    case "Completed":
+                                        <span class="badge bg-success">Completed</span>
+                                        break;
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case "Failed":
+                                        <span class="badge bg-danger">Failed</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@payment.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@(payment.Description ?? "-")</td>
+                            <td>
+                                @if (payment.Status == "Pending")
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@payment.PaymentId" />
+                                        <input type="hidden" name="status" value="Completed" />
+                                        <input type="hidden" name="contractId" value="@ViewBag.ContractId" />
+                                        <button type="submit" class="btn btn-sm btn-success" title="Mark as Completed">
+                                            <i class="bi bi-check-circle"></i> Complete
+                                        </button>
+                                    </form>
+                                    <form asp-action="UpdateStatus" method="post" class="d-inline ms-1">
+                                        <input type="hidden" name="id" value="@payment.PaymentId" />
+                                        <input type="hidden" name="status" value="Failed" />
+                                        <input type="hidden" name="contractId" value="@ViewBag.ContractId" />
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Mark as Failed">
+                                            <i class="bi bi-x-circle"></i> Failed
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="table-info">
+                        <td colspan="2" class="text-end"><strong>Total:</strong></td>
+                        <td colspan="6"><strong class="text-success">$@Model.Sum(p => p.Amount)</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No payments yet</h4>
+            <p>Payments will appear here after you create them for contracts. <a asp-controller="Contracts" asp-action="Index" class="alert-link">View contracts</a> to create payments.</p>
+        </div>
+    }
+</div>

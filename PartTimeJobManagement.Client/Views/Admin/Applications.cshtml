@@ -1,0 +1,173 @@
+@model List<PartTimeJobManagement.Client.Models.DTOs.ApplicationResponseDTO>
+
+@{
+    ViewData["Title"] = "Application Management";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Application Management</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <form method="get" asp-action="Applications" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Pending" selected="@(ViewBag.Status == "Pending")">Pending</option>
+                    <option value="Approved" selected="@(ViewBag.Status == "Approved")">Approved</option>
+                    <option value="Rejected" selected="@(ViewBag.Status == "Rejected")">Rejected</option>
+                    <option value="Withdrawn" selected="@(ViewBag.Status == "Withdrawn")">Withdrawn</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Applications Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Applications (@Model.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Job Title</th>
+                                <th>Employer</th>
+                                <th>Applied Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var application in Model)
+                            {
+                                <tr>
+                                    <td>@application.ApplicationId</td>
+                                    <td>@application.StudentName</td>
+                                    <td>
+                                        <a asp-controller="Jobs" asp-action="Details" asp-route-id="@application.JobId">
+                                            @application.JobTitle
+                                        </a>
+                                    </td>
+                                    <td>@application.EmployerName</td>
+                                    <td>@application.ApplicationDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (application.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning">Pending</span>
+                                        }
+                                        else if (application.Status == "Approved")
+                                        {
+                                            <span class="badge bg-success">Approved</span>
+                                        }
+                                        else if (application.Status == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                        else if (application.Status == "Withdrawn")
+                                        {
+                                            <span class="badge bg-secondary">Withdrawn</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info">@application.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#detailModal-@application.ApplicationId">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Detail Modal -->
+                                <div class="modal fade" id="detailModal-@application.ApplicationId" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Application Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <strong>Student:</strong> @application.StudentName
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <strong>Job:</strong> @application.JobTitle
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-6">
+                                                        <strong>Employer:</strong> @application.EmployerName
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <strong>Applied:</strong> @application.ApplicationDate.ToString("MMMM dd, yyyy")
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12">
+                                                        <strong>Status:</strong> 
+                                                        @if (application.Status == "Pending")
+                                                        {
+                                                            <span class="badge bg-warning">Pending</span>
+                                                        }
+                                                        else if (application.Status == "Approved")
+                                                        {
+                                                            <span class="badge bg-success">Approved</span>
+                                                        }
+                                                        else if (application.Status == "Rejected")
+                                                        {
+                                                            <span class="badge bg-danger">Rejected</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">@application.Status</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(application.CoverLetter))
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <strong>Cover Letter:</strong>
+                                                            <p class="mt-2">@application.CoverLetter</p>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center">No applications found.</p>
+            }
+        </div>
+    </div>
+</div>

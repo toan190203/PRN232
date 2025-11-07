@@ -1,0 +1,91 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.ContractResponseDTO>
+
+@{
+    ViewData["Title"] = "My Contracts";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-check"></i> My Contracts</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Jobs" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-search"></i> Browse Jobs
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var contract in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@contract.JobTitle</h5>
+                            @switch (contract.Status)
+                            {
+                                case "Active":
+                                    <span class="badge bg-success">Active</span>
+                                    break;
+                                case "Completed":
+                                    <span class="badge bg-info">Completed</span>
+                                    break;
+                                case "Terminated":
+                                    <span class="badge bg-danger">Terminated</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-secondary">@contract.Status</span>
+                                    break;
+                            }
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Employer:</strong> @contract.EmployerName</p>
+                            <p><strong>Duration:</strong> @contract.StartDate.ToString("MMM dd, yyyy") - @(contract.EndDate?.ToString("MMM dd, yyyy") ?? "Ongoing")</p>
+                            <p><strong>Salary Agreed:</strong> <span class="text-success fw-bold">$@contract.SalaryAgreed</span></p>
+                            <p><strong>Total Paid:</strong> <span class="text-info">$@contract.TotalPaid</span> (@contract.TotalPayments payments)</p>
+                            
+                            @if (!string.IsNullOrEmpty(contract.ContractFile))
+                            {
+                                <hr />
+                                <p class="text-muted small mb-0"><strong>Contract File:</strong> @contract.ContractFile</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="btn-group w-100" role="group">
+                                <a asp-action="Details" asp-route-id="@contract.ContractId" class="btn btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+                                <a asp-controller="Payments" asp-action="MyPayments" class="btn btn-outline-success">
+                                    <i class="bi bi-cash"></i> Payments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        @if (ViewBag.NeedsProfile == true)
+        {
+            <div class="alert alert-warning">
+                <h4><i class="bi bi-exclamation-triangle"></i> Profile Required</h4>
+                <p>Please complete your student profile to access contracts and job applications.</p>
+                <a asp-controller="Profile" asp-action="EditStudentProfile" class="btn btn-warning">
+                    <i class="bi bi-person-fill"></i> Complete Profile
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <h4>No contracts yet</h4>
+                <p>You don't have any contracts. Once your applications are accepted, contracts will appear here. <a asp-controller="Applications" asp-action="MyApplications" class="alert-link">Check your applications</a>.</p>
+            </div>
+        }
+    }
+</div>

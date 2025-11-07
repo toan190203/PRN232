@@ -1,0 +1,124 @@
+@model PartTimeJobManagement.Client.Models.DTOs.JobResponseDTO
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">@Model.Title</h2>
+                    <h5 class="text-muted mb-4">@Model.EmployerName</h5>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Salary:</strong> <span class="text-success fs-4">$@(Model.Salary?.ToString("N2") ?? "N/A")</span></p>
+                            <p><strong>Location:</strong> @Model.Location</p>
+                            <p><strong>Category:</strong> <span class="badge bg-info">@Model.CategoryName</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Posted:</strong> @Model.PostedDate.ToString("MMM dd, yyyy")</p>
+                            <p><strong>Expiration:</strong> @(Model.ExpirationDate?.ToString("MMM dd, yyyy") ?? "No expiration")</p>
+                            <p><strong>Status:</strong> 
+                                @if (Model.Status == "Active" || Model.Status == "Open")
+                                {
+                                    <span class="badge bg-success">@Model.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">@Model.Status</span>
+                                }
+                            </p>
+                            <p><strong>Applications:</strong> <span class="badge bg-primary">@Model.TotalApplications</span></p>
+                        </div>
+                    </div>
+                    
+                    <hr />
+                    
+                    <h4>Job Description</h4>
+                    <p class="text-justify">@Model.Description</p>
+                    
+                    <hr class="my-4" />
+                    
+                    @if (Context.Session.GetString("UserRole") == "Student" && (Model.Status == "Active" || Model.Status == "Open"))
+                    {
+                        var hasApplied = ViewBag.HasApplied as bool? ?? false;
+                        
+                        if (hasApplied)
+                        {
+                            <div class="alert alert-success mt-4">
+                                <h5><i class="bi bi-check-circle-fill"></i> Application Submitted</h5>
+                                <p class="mb-2">You have already applied for this position.</p>
+                                <a asp-action="MyApplications" class="btn btn-primary">View My Applications</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-4">
+                                <h5 class="mb-3">Interested in this position?</h5>
+                                <form asp-action="Apply" asp-route-jobId="@Model.JobId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <div class="mb-3">
+                                        <label for="coverLetter" class="form-label">Cover Letter (Optional)</label>
+                                        <textarea class="form-control" id="coverLetter" name="coverLetter" rows="4" placeholder="Tell the employer why you're a great fit for this position..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="bi bi-send-fill"></i> Apply for this Job
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(Context.Session.GetString("UserRole")) && (Model.Status == "Active" || Model.Status == "Open"))
+                    {
+                        <div class="alert alert-info mt-4">
+                            <h5><i class="bi bi-info-circle"></i> Want to apply?</h5>
+                            <p class="mb-2">Please login or register as a student to apply for this job.</p>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Login</a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">Register</a>
+                        </div>
+                    }
+                    else if (Context.Session.GetString("UserRole") == "Employer" && (Model.Status == "Active" || Model.Status == "Open"))
+                    {
+                        <div class="alert alert-warning mt-4">
+                            <i class="bi bi-exclamation-triangle"></i> Only students can apply for jobs.
+                        </div>
+                    }
+                    else if (Model.Status != "Active" && Model.Status != "Open")
+                    {
+                        <div class="alert alert-secondary mt-4">
+                            <i class="bi bi-lock"></i> This job is no longer accepting applications.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a asp-action="Index" class="btn btn-outline-primary w-100 mb-2">Back to All Jobs</a>
+                    @if (Context.Session.GetString("UserRole") == "Student")
+                    {
+                        <a asp-action="MyApplications" class="btn btn-outline-secondary w-100">My Applications</a>
+                    }
+                </div>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Employer Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Company:</strong> @Model.EmployerName</p>
+                    <p class="mb-0"><small class="text-muted">Contact through the application system</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

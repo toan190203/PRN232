@@ -1,0 +1,85 @@
+@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.ContractResponseDTO>
+
+@{
+    ViewData["Title"] = "Contracts Management";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2><i class="bi bi-file-earmark-check"></i> Contracts Management</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="Applications" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-file-earmark-text"></i> View Applications
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Student</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Salary Agreed</th>
+                        <th>Payments</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contract in Model)
+                    {
+                        <tr>
+                            <td><strong>@contract.JobTitle</strong></td>
+                            <td>@contract.StudentName</td>
+                            <td>@contract.StartDate.ToString("MMM dd, yyyy")</td>
+                            <td>@(contract.EndDate?.ToString("MMM dd, yyyy") ?? "Ongoing")</td>
+                            <td>$@contract.SalaryAgreed</td>
+                            <td>@contract.TotalPayments payments</td>
+                            <td>
+                                @switch (contract.Status)
+                                {
+                                    case "Active":
+                                        <span class="badge bg-success">Active</span>
+                                        break;
+                                    case "Completed":
+                                        <span class="badge bg-info">Completed</span>
+                                        break;
+                                    case "Terminated":
+                                        <span class="badge bg-danger">Terminated</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@contract.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@contract.ContractId" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    <a asp-controller="Payments" asp-action="Create" asp-route-contractId="@contract.ContractId" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-cash"></i> Pay
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No contracts yet</h4>
+            <p>Contracts will appear here after you accept applications. <a asp-controller="Applications" asp-action="Index" class="alert-link">Review applications</a> to create contracts.</p>
+        </div>
+    }
+</div>

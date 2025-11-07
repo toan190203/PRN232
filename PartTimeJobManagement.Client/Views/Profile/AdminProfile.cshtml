@@ -1,0 +1,83 @@
+@using PartTimeJobManagement.Client.Controllers
+@model AdminProfileViewModel
+
+@{
+    ViewData["Title"] = "Admin Profile";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-shield-check"></i> Administrator Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>User ID:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.UserId
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Email:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.Email
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Role:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="badge bg-danger">@Model.Role</span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Administrator Account</strong>
+                        <p class="mb-0 mt-2">This is a system administrator account with full access to all features and settings.</p>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <h5>Quick Actions</h5>
+                            <div class="list-group">
+                                <a asp-controller="Admin" asp-action="Dashboard" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-speedometer2"></i> Go to Dashboard
+                                </a>
+                                <a asp-controller="Admin" asp-action="Users" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-people"></i> Manage Users
+                                </a>
+                                <a asp-controller="Admin" asp-action="Jobs" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-briefcase"></i> Manage Jobs
+                                </a>
+                                <a asp-controller="Admin" asp-action="Applications" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-file-earmark-text"></i> View Applications
+                                </a>
+                                <a asp-action="ChangePassword" class="list-group-item list-group-item-action">
+                                    <i class="bi bi-key"></i> Change Password
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

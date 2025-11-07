@@ -1,0 +1,139 @@
+@model PartTimeJobManagement.Client.Models.DTOs.ApplicationResponseDTO
+
+@{
+    ViewData["Title"] = "Application Details";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-file-earmark-text"></i> Application Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Student Name</label>
+                            <p>@Model.StudentName</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Job Title</label>
+                            <p>@Model.JobTitle</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="fw-bold">Application Date</label>
+                            <p>@Model.ApplicationDate.ToString("MMMM dd, yyyy")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold">Status</label>
+                            <p>
+                                @switch (Model.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case "Accepted":
+                                        <span class="badge bg-success">Accepted</span>
+                                        break;
+                                    case "Rejected":
+                                        <span class="badge bg-danger">Rejected</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@Model.Status</span>
+                                        break;
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="fw-bold">Employer</label>
+                            <p>@Model.EmployerName</p>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.CoverLetter))
+                    {
+                        <hr />
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label class="fw-bold">Cover Letter</label>
+                                <div class="p-3 bg-light rounded">
+                                    <p class="mb-0">@Model.CoverLetter</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <hr />
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No cover letter provided
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a asp-action="Index" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-arrow-left"></i> Back to Applications
+                    </a>
+
+                    @if (Model.Status == "Pending")
+                    {
+                        <form asp-action="Accept" asp-route-id="@Model.ApplicationId" method="post" class="mb-2">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success w-100" onclick="return confirm('Accept this application? This will allow you to create a contract.')">
+                                <i class="bi bi-check-circle"></i> Accept Application
+                            </button>
+                        </form>
+
+                        <form asp-action="Reject" asp-route-id="@Model.ApplicationId" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to reject this application?')">
+                                <i class="bi bi-x-circle"></i> Reject Application
+                            </button>
+                        </form>
+                    }
+                    else if (Model.Status == "Accepted")
+                    {
+                        <a asp-controller="Contracts" asp-action="Create" asp-route-applicationId="@Model.ApplicationId" class="btn btn-success w-100">
+                            <i class="bi bi-file-earmark-plus"></i> Create Contract
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Application Info</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Application ID:</strong><br />
+                    #@Model.ApplicationId</p>
+                    
+                    <p><strong>Days Since Applied:</strong><br />
+                    @((DateTime.Now - Model.ApplicationDate).Days) days ago</p>
+                    
+                    @if (Model.Status == "Pending")
+                    {
+                        <div class="alert alert-warning mb-0">
+                            <small><i class="bi bi-clock"></i> Awaiting your response</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

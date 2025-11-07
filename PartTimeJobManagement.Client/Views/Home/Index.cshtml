@@ -1,0 +1,90 @@
+﻿@model IEnumerable<PartTimeJobManagement.Client.Models.DTOs.JobResponseDTO>
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Hero Section -->
+<div class="jumbotron bg-light p-5 rounded-3 mb-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Find Your Perfect Part-Time Job</h1>
+        <p class="lead">Connect with employers and discover opportunities that fit your schedule</p>
+        <hr class="my-4">
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            @if (string.IsNullOrEmpty(Context.Session.GetString("JWTToken")))
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-lg px-4 gap-3">Get Started</a>
+                <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">Browse Jobs</a>
+            }
+            else if (Context.Session.GetString("UserRole") == "Student")
+            {
+                <a asp-controller="Jobs" asp-action="Index" class="btn btn-primary btn-lg px-4 gap-3">Browse Jobs</a>
+                <a asp-controller="Jobs" asp-action="MyApplications" class="btn btn-outline-secondary btn-lg px-4">My Applications</a>
+            }
+            else if (Context.Session.GetString("UserRole") == "Employer")
+            {
+                <a asp-controller="Jobs" asp-action="Create" class="btn btn-primary btn-lg px-4 gap-3">Post a Job</a>
+                <a asp-controller="Jobs" asp-action="MyJobs" class="btn btn-outline-secondary btn-lg px-4">My Jobs</a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Latest Jobs Section -->
+<div class="container">
+    <h2 class="mb-4">Latest Opportunities</h2>
+    
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var job in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <div class="card-body">
+                            <h5 class="card-title">@job.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">@job.EmployerName</h6>
+                            <p class="card-text text-truncate-3">@job.Description</p>
+                            <ul class="list-unstyled mt-3">
+                                <li><i class="bi bi-cash"></i> <strong>$@(job.Salary?.ToString("N2") ?? "N/A")</strong>/hour</li>
+                                <li><i class="bi bi-geo-alt"></i> @job.Location</li>
+                                <li><i class="bi bi-tag"></i> @job.CategoryName</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a asp-controller="Jobs" asp-action="Details" asp-route-id="@job.JobId" class="btn btn-primary btn-sm w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="text-center mt-4">
+            <a asp-controller="Jobs" asp-action="Index" class="btn btn-outline-primary btn-lg">View All Jobs</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <h4>No jobs available yet</h4>
+            <p>Check back soon for new opportunities!</p>
+        </div>
+    }
+</div>
+
+<style>
+    .text-truncate-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .hover-shadow {
+        transition: box-shadow 0.3s ease-in-out;
+    }
+    
+    .hover-shadow:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
