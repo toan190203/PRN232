@@ -5,6 +5,8 @@ using PartTimeJobManagement.API.Services;
 
 namespace PartTimeJobManagement.API.Controllers
 {
+    // UNUSED API CONTROLLER - All endpoints commented out temporarily
+    /*
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
@@ -67,4 +69,5 @@ namespace PartTimeJobManagement.API.Controllers
             }
         }
     }
+    */
 }

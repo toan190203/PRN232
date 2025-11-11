@@ -6,6 +6,7 @@ namespace PartTimeJobManagement.Client.Services
     public interface IUserService
     {
         Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync();
+        Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<UserResponseDTO?> GetUserByIdAsync(int userId);
         Task<bool> UpdateUserAsync(int userId, UpdateUserDTO updateUserDto);
         Task<bool> DeleteUserAsync(int userId);
@@ -24,6 +25,28 @@ namespace PartTimeJobManagement.Client.Services
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("api/Users");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var users = await response.Content.ReadFromJsonAsync<IEnumerable<UserResponseDTO>>();
+                    return users ?? new List<UserResponseDTO>();
+                }
+
+                return new List<UserResponseDTO>();
+            }
+            catch (Exception)
+            {
+                return new List<UserResponseDTO>();
+            }
+        }
+
+        public async Task<IEnumerable<UserResponseDTO>> GetAllUsersAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Users{queryParams}");
 
                 if (response.IsSuccessStatusCode)
                 {

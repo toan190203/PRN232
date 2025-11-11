@@ -45,7 +45,7 @@
                             <p><strong>Employer:</strong> @contract.EmployerName</p>
                             <p><strong>Duration:</strong> @contract.StartDate.ToString("MMM dd, yyyy") - @(contract.EndDate?.ToString("MMM dd, yyyy") ?? "Ongoing")</p>
                             <p><strong>Salary Agreed:</strong> <span class="text-success fw-bold">$@contract.SalaryAgreed</span></p>
-                            <p><strong>Total Paid:</strong> <span class="text-info">$@contract.TotalPaid</span> (@contract.TotalPayments payments)</p>
+                            <p><strong>Total Paid:</strong> <span class="text-info">$@contract.TotalPaid</span></p>
                             
                             @if (!string.IsNullOrEmpty(contract.ContractFile))
                             {

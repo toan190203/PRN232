@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,10 +19,16 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all roles
+        /// Get all roles with OData support
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter: ?$filter=TotalUsers gt 0
+        /// - Sort: ?$orderby=RoleName
+        /// </remarks>
         [HttpGet]
         [AllowAnonymous]
+        [EnableQuery(MaxTop = 50)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<RoleResponseDTO>>> GetAll()
         {

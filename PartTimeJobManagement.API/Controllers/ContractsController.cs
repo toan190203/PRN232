@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,10 +19,17 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all contracts (Admin only)
+        /// Get all contracts with OData support (Admin only)
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by status: ?$filter=Status eq 'Active'
+        /// - Filter by date: ?$filter=StartDate ge 2025-01-01
+        /// - Sort: ?$orderby=CreatedAt desc
+        /// </remarks>
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ContractResponseDTO>>> GetAll()
         {
@@ -29,6 +37,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(contracts);
         }
 
+        // UNUSED API - Commented out temporarily
+        /*
         /// <summary>
         /// Get active contracts
         /// </summary>
@@ -39,6 +49,7 @@ namespace PartTimeJobManagement.API.Controllers
             var contracts = await _contractService.GetActiveContractsAsync();
             return Ok(contracts);
         }
+        */
 
         /// <summary>
         /// Get contract by ID
@@ -55,6 +66,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(contract);
         }
 
+        // UNUSED API - Commented out temporarily
+        /*
         /// <summary>
         /// Get contract by application ID
         /// </summary>
@@ -69,11 +82,13 @@ namespace PartTimeJobManagement.API.Controllers
 
             return Ok(contract);
         }
+        */
 
         /// <summary>
-        /// Get contracts by student ID
+        /// Get contracts by student ID with OData support
         /// </summary>
         [HttpGet("student/{studentId}")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ContractResponseDTO>>> GetByStudentId(int studentId)
         {
@@ -82,10 +97,11 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get contracts by employer ID
+        /// Get contracts by employer ID with OData support
         /// </summary>
         [HttpGet("employer/{employerId}")]
         [Authorize(Roles = "Employer,Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ContractResponseDTO>>> GetByEmployerId(int employerId)
         {

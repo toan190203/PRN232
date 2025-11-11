@@ -6,6 +6,7 @@ namespace PartTimeJobManagement.Client.Services
     public interface IJobCategoryService
     {
         Task<List<JobCategoryResponseDTO>?> GetAllCategoriesAsync();
+        Task<List<JobCategoryResponseDTO>?> GetAllCategoriesAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<JobCategoryResponseDTO?> GetCategoryByIdAsync(int id);
     }
 
@@ -22,6 +23,27 @@ namespace PartTimeJobManagement.Client.Services
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("api/JobCategories");
+                if (response.IsSuccessStatusCode)
+                {
+                    var categories = await response.Content.ReadFromJsonAsync<List<JobCategoryResponseDTO>>();
+                    return categories;
+                }
+                
+                return new List<JobCategoryResponseDTO>();
+            }
+            catch (Exception)
+            {
+                return new List<JobCategoryResponseDTO>();
+            }
+        }
+
+        public async Task<List<JobCategoryResponseDTO>?> GetAllCategoriesAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/JobCategories{queryParams}");
                 if (response.IsSuccessStatusCode)
                 {
                     var categories = await response.Content.ReadFromJsonAsync<List<JobCategoryResponseDTO>>();

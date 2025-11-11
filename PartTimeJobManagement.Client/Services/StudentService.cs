@@ -6,6 +6,7 @@ namespace PartTimeJobManagement.Client.Services
     public interface IStudentService
     {
         Task<List<StudentResponseDTO>> GetAllStudentsAsync();
+        Task<List<StudentResponseDTO>> GetAllStudentsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<StudentResponseDTO?> GetStudentByIdAsync(int id);
         Task<StudentResponseDTO?> GetStudentByUserIdAsync(int userId);
         Task<StudentResponseDTO?> CreateStudentAsync(CreateStudentProfileDTO student);
@@ -25,7 +26,27 @@ namespace PartTimeJobManagement.Client.Services
         {
             try
             {
+                SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("api/Students");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<StudentResponseDTO>>() ?? new List<StudentResponseDTO>();
+                }
+                return new List<StudentResponseDTO>();
+            }
+            catch (Exception)
+            {
+                return new List<StudentResponseDTO>();
+            }
+        }
+
+        public async Task<List<StudentResponseDTO>> GetAllStudentsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Students{queryParams}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<List<StudentResponseDTO>>() ?? new List<StudentResponseDTO>();
@@ -42,6 +63,7 @@ namespace PartTimeJobManagement.Client.Services
         {
             try
             {
+                SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync($"api/Students/{id}");
                 if (response.IsSuccessStatusCode)
                 {
@@ -111,6 +133,7 @@ namespace PartTimeJobManagement.Client.Services
         {
             try
             {
+                SetAuthorizationHeader();
                 var response = await _httpClient.DeleteAsync($"api/Students/{id}");
                 return response.IsSuccessStatusCode;
             }

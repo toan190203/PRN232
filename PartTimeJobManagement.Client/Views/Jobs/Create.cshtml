@@ -18,64 +18,99 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     }
+
+                    @if (TempData["WarningMessage"] != null)
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>@TempData["WarningMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (ViewBag.IsVerified != null && !ViewBag.IsVerified)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <h5 class="alert-heading"><i class="bi bi-shield-exclamation me-2"></i>Account Not Verified</h5>
+                            <p>Your employer account is pending verification. You cannot post jobs until an administrator verifies your account.</p>
+                            <hr>
+                            <p class="mb-0">Please contact the admin at <strong>admin@parttimejob.com</strong> for verification.</p>
+                        </div>
+                    }
                     
                     <form asp-action="Create" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                         
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label">Job Title</label>
-                            <input asp-for="Title" class="form-control" placeholder="e.g., Barista, Tutor, Delivery Driver" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Job Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="5" placeholder="Describe the job responsibilities and what you're looking for..."></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Salary" class="form-label">Salary ($)</label>
-                                <input asp-for="Salary" type="number" step="0.01" class="form-control" placeholder="45000" />
-                                <span asp-validation-for="Salary" class="text-danger"></span>
+                        @{
+                            var isDisabled = ViewBag.IsVerified != null && !ViewBag.IsVerified;
+                        }
+
+                        <fieldset disabled="@isDisabled">
+                            <div class="mb-3">
+                                <label asp-for="Title" class="form-label">Job Title</label>
+                                <input asp-for="Title" class="form-control" placeholder="e.g., Barista, Tutor, Delivery Driver" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
                             
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Location" class="form-label">Location</label>
-                                <input asp-for="Location" class="form-control" placeholder="e.g., District 1, HCMC" />
-                                <span asp-validation-for="Location" class="text-danger"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="ExpirationDate" class="form-label">Expiration Date</label>
-                                <input asp-for="ExpirationDate" type="date" class="form-control" />
-                                <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">Job Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="5" placeholder="Describe the job responsibilities and what you're looking for..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
                             </div>
                             
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="CategoryId" class="form-label">Job Category</label>
-                                <select asp-for="CategoryId" class="form-select">
-                                    <option value="">-- Select Category --</option>
-                                    @if (ViewBag.Categories != null)
-                                    {
-                                        foreach (var category in ViewBag.Categories)
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Salary" class="form-label">Salary ($)</label>
+                                    <input asp-for="Salary" type="number" step="0.01" class="form-control" placeholder="45000" />
+                                    <span asp-validation-for="Salary" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Location" class="form-label">Location</label>
+                                    <input asp-for="Location" class="form-control" placeholder="e.g., District 1, HCMC" />
+                                    <span asp-validation-for="Location" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="ExpirationDate" class="form-label">Expiration Date</label>
+                                    <input asp-for="ExpirationDate" type="date" class="form-control" />
+                                    <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="CategoryId" class="form-label">Job Category</label>
+                                    <select asp-for="CategoryId" class="form-select">
+                                        <option value="">-- Select Category --</option>
+                                        @if (ViewBag.Categories != null)
                                         {
-                                            <option value="@category.CategoryId">@category.CategoryName</option>
+                                            foreach (var category in ViewBag.Categories)
+                                            {
+                                                <option value="@category.CategoryId">@category.CategoryName</option>
+                                            }
                                         }
-                                    }
-                                </select>
-                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                    </select>
+                                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                                </div>
                             </div>
-                        </div>
+                        </fieldset>
                         
                         
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-success">Post Job</button>
+                            @if (ViewBag.IsVerified != null && !ViewBag.IsVerified)
+                            {
+                                <button type="button" class="btn btn-success" disabled>
+                                    <i class="bi bi-lock-fill me-2"></i>Post Job (Account Not Verified)
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-send-fill me-2"></i>Post Job
+                                </button>
+                            }
                         </div>
                     </form>
                 </div>

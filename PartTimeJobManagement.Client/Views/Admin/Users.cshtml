@@ -114,12 +114,6 @@
                                                     @(user.IsActive ? "Deactivate" : "Activate")
                                                 </button>
                                             </form>
-                                            <form method="post" asp-action="DeleteUser" asp-route-id="@user.UserId" class="d-inline">
-                                                <button type="submit" class="btn btn-sm btn-danger" 
-                                                        onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
-                                                    Delete
-                                                </button>
-                                            </form>
                                         }
                                         else
                                         {

@@ -57,23 +57,36 @@ namespace PartTimeJobManagement.Client.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null) return accessCheck;
 
-            var users = await _userService.GetAllUsersAsync();
-            var jobs = await _jobService.GetAllJobsAsync();
+            // Get recent users and jobs using OData
+            var users = await _userService.GetAllUsersAsync(
+                orderBy: "CreatedAt desc",
+                top: 5
+            );
+            
+            var jobs = await _jobService.GetAllJobsAsync(
+                orderBy: "PostedDate desc",
+                top: 5
+            );
+            
             var students = await _studentService.GetAllStudentsAsync();
             var employers = await _employerService.GetAllEmployersAsync();
-            var applications = await _applicationService.GetAllApplicationsAsync();
+            
+            // Get all applications for counting
+            var allApplications = await _applicationService.GetAllApplicationsAsync();
+            var allJobs = await _jobService.GetAllJobsAsync();
+            var allUsers = await _userService.GetAllUsersAsync();
 
             var model = new AdminDashboardViewModel
             {
-                TotalUsers = users?.Count() ?? 0,
+                TotalUsers = allUsers?.Count() ?? 0,
                 TotalStudents = students?.Count() ?? 0,
                 TotalEmployers = employers?.Count() ?? 0,
-                TotalJobs = jobs?.Count() ?? 0,
-                ActiveJobs = jobs?.Count(j => j.Status == "Open") ?? 0,
-                TotalApplications = applications?.Count() ?? 0,
-                PendingApplications = applications?.Count(a => a.Status == "Pending") ?? 0,
-                RecentUsers = users?.OrderByDescending(u => u.CreatedAt).Take(5).ToList() ?? new List<UserResponseDTO>(),
-                RecentJobs = jobs?.OrderByDescending(j => j.PostedDate).Take(5).ToList() ?? new List<JobResponseDTO>()
+                TotalJobs = allJobs?.Count() ?? 0,
+                ActiveJobs = allJobs?.Count(j => j.Status == "Open") ?? 0,
+                TotalApplications = allApplications?.Count() ?? 0,
+                PendingApplications = allApplications?.Count(a => a.Status == "Pending") ?? 0,
+                RecentUsers = users?.ToList() ?? new List<UserResponseDTO>(),
+                RecentJobs = jobs?.ToList() ?? new List<JobResponseDTO>()
             };
 
             return View(model);
@@ -85,19 +98,25 @@ namespace PartTimeJobManagement.Client.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null) return accessCheck;
 
-            var users = await _userService.GetAllUsersAsync();
-
+            // Build OData filter
+            var filters = new List<string>();
+            
             if (!string.IsNullOrEmpty(search))
             {
-                users = users?.Where(u => 
-                    u.Email.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    (u.FullName != null && u.FullName.Contains(search, StringComparison.OrdinalIgnoreCase)));
+                filters.Add($"(contains(tolower(Email), '{search.ToLower()}') or contains(tolower(FullName), '{search.ToLower()}'))");
             }
 
             if (!string.IsNullOrEmpty(role) && role != "All")
             {
-                users = users?.Where(u => u.RoleName == role);
+                filters.Add($"RoleName eq '{role}'");
             }
+
+            string? filter = filters.Count > 0 ? string.Join(" and ", filters) : null;
+
+            var users = await _userService.GetAllUsersAsync(
+                filter: filter,
+                orderBy: "CreatedAt desc"
+            );
 
             ViewBag.Search = search;
             ViewBag.Role = role;
@@ -113,19 +132,25 @@ namespace PartTimeJobManagement.Client.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null) return accessCheck;
 
-            var jobs = await _jobService.GetAllJobsAsync();
-
+            // Build OData filter
+            var filters = new List<string>();
+            
             if (!string.IsNullOrEmpty(search))
             {
-                jobs = jobs?.Where(j => 
-                    j.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    j.Description.Contains(search, StringComparison.OrdinalIgnoreCase));
+                filters.Add($"(contains(tolower(Title), '{search.ToLower()}') or contains(tolower(Description), '{search.ToLower()}'))");
             }
 
             if (!string.IsNullOrEmpty(status) && status != "All")
             {
-                jobs = jobs?.Where(j => j.Status == status);
+                filters.Add($"Status eq '{status}'");
             }
+
+            string? filter = filters.Count > 0 ? string.Join(" and ", filters) : null;
+
+            var jobs = await _jobService.GetAllJobsAsync(
+                filter: filter,
+                orderBy: "PostedDate desc"
+            );
 
             ViewBag.Search = search;
             ViewBag.Status = status;
@@ -139,12 +164,17 @@ namespace PartTimeJobManagement.Client.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null) return accessCheck;
 
-            var applications = await _applicationService.GetAllApplicationsAsync();
-
+            // Build OData filter
+            string? filter = null;
             if (!string.IsNullOrEmpty(status) && status != "All")
             {
-                applications = applications?.Where(a => a.Status == status);
+                filter = $"Status eq '{status}'";
             }
+
+            var applications = await _applicationService.GetAllApplicationsAsync(
+                filter: filter,
+                orderBy: "ApplicationDate desc"
+            );
 
             ViewBag.Status = status;
 
@@ -157,32 +187,37 @@ namespace PartTimeJobManagement.Client.Controllers
             var accessCheck = CheckAdminAccess();
             if (accessCheck != null) return accessCheck;
 
-            var employers = await _employerService.GetAllEmployersAsync();
-            IEnumerable<EmployerResponseDTO>? filteredEmployers = employers;
-
+            // Build OData filter
+            var filters = new List<string>();
+            
             if (!string.IsNullOrEmpty(search))
             {
-                filteredEmployers = filteredEmployers?.Where(e => 
-                    (e.CompanyName != null && e.CompanyName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                    (e.ContactName != null && e.ContactName.Contains(search, StringComparison.OrdinalIgnoreCase)));
+                filters.Add($"(contains(tolower(CompanyName), '{search.ToLower()}') or contains(tolower(ContactName), '{search.ToLower()}'))");
             }
 
             if (!string.IsNullOrEmpty(verified))
             {
                 if (verified == "Verified")
                 {
-                    filteredEmployers = filteredEmployers?.Where(e => e.IsVerified);
+                    filters.Add("IsVerified eq true");
                 }
                 else if (verified == "Pending")
                 {
-                    filteredEmployers = filteredEmployers?.Where(e => !e.IsVerified);
+                    filters.Add("IsVerified eq false");
                 }
             }
+
+            string? filter = filters.Count > 0 ? string.Join(" and ", filters) : null;
+
+            var employers = await _employerService.GetAllEmployersAsync(
+                filter: filter,
+                orderBy: "CompanyName asc"
+            );
 
             ViewBag.Search = search;
             ViewBag.Verified = verified;
 
-            return View(filteredEmployers?.ToList() ?? new List<EmployerResponseDTO>());
+            return View(employers?.ToList() ?? new List<EmployerResponseDTO>());
         }
 
         // POST: Admin/VerifyEmployer/{id}

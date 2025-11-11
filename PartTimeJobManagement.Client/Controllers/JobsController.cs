@@ -34,28 +34,39 @@ namespace PartTimeJobManagement.Client.Controllers
         {
             IEnumerable<JobResponseDTO>? jobs;
 
-            if (categoryId.HasValue)
+            // Build OData filter
+            string? filter = null;
+            
+            // Tạo filter cho search text - tìm kiếm trong Title, Description
+            if (!string.IsNullOrEmpty(search))
             {
-                jobs = await _jobService.GetJobsByCategoryAsync(categoryId.Value);
+                // Escape single quotes in search term to prevent OData syntax errors
+                var escapedSearch = search.Replace("'", "''").ToLower();
+                
+                // Chỉ search trong Title và Description (non-nullable fields)
+                filter = $"(contains(tolower(Title), '{escapedSearch}') or contains(tolower(Description), '{escapedSearch}'))";
+            }
+
+            // Lấy jobs với OData filter
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                jobs = await _jobService.GetJobsByCategoryAsync(
+                    categoryId.Value,
+                    filter: filter,
+                    orderBy: "PostedDate desc"
+                );
             }
             else
             {
-                // Hiển thị toàn bộ jobs nếu không lọc theo category
-                jobs = await _jobService.GetAllJobsAsync();
-            }
-
-            if (!string.IsNullOrEmpty(search) && jobs != null)
-            {
-                jobs = jobs.Where(j => 
-                    j.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    j.Description.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    (j.Location != null && j.Location.Contains(search, StringComparison.OrdinalIgnoreCase))
+                jobs = await _jobService.GetAllJobsAsync(
+                    filter: filter,
+                    orderBy: "PostedDate desc"
                 );
             }
 
             // Load categories for filter dropdown
             var categories = await _jobCategoryService.GetAllCategoriesAsync();
-            ViewBag.Categories = categories;
+            ViewBag.Categories = categories ?? new List<JobCategoryResponseDTO>();
             ViewBag.Search = search;
             ViewBag.CategoryId = categoryId;
 
@@ -141,6 +152,27 @@ namespace PartTimeJobManagement.Client.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Kiểm tra employer đã được verify chưa
+            var employer = await _employerService.GetEmployerByUserIdAsync(userId.Value);
+            if (employer == null)
+            {
+                TempData["ErrorMessage"] = "Employer profile not found.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (!employer.IsVerified)
+            {
+                TempData["WarningMessage"] = "Your employer account must be verified before you can post jobs. Please contact admin for verification.";
+            }
+
+            ViewBag.IsVerified = employer.IsVerified;
+
             // Load categories for dropdown
             var categories = await _jobCategoryService.GetAllCategoriesAsync();
             ViewBag.Categories = categories;
@@ -182,6 +214,15 @@ namespace PartTimeJobManagement.Client.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Kiểm tra employer đã được verify chưa
+            if (!employer.IsVerified)
+            {
+                TempData["ErrorMessage"] = "Your employer account must be verified before you can post jobs. Please contact admin for verification.";
+                var categories = await _jobCategoryService.GetAllCategoriesAsync();
+                ViewBag.Categories = categories;
+                return View(model);
+            }
+
             model.EmployerId = employer.EmployerId;
             
             // Xử lý CategoryId nếu là 0 thì set null
@@ -190,17 +231,29 @@ namespace PartTimeJobManagement.Client.Controllers
                 model.CategoryId = null;
             }
 
-            var result = await _jobService.CreateJobAsync(model);
-
-            if (result != null)
+            try
             {
-                TempData["SuccessMessage"] = "Job posted successfully!";
-                return RedirectToAction(nameof(MyJobs));
+                var result = await _jobService.CreateJobAsync(model);
+
+                if (result != null)
+                {
+                    TempData["SuccessMessage"] = "Job posted successfully!";
+                    return RedirectToAction(nameof(MyJobs));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Load categories lại cho dropdown
+                var categoriesRetry = await _jobCategoryService.GetAllCategoriesAsync();
+                ViewBag.Categories = categoriesRetry;
+                
+                TempData["ErrorMessage"] = ex.Message;
+                return View(model);
             }
 
             // Load categories lại cho dropdown
-            var categoriesRetry = await _jobCategoryService.GetAllCategoriesAsync();
-            ViewBag.Categories = categoriesRetry;
+            var categoriesRetry2 = await _jobCategoryService.GetAllCategoriesAsync();
+            ViewBag.Categories = categoriesRetry2;
             
             TempData["ErrorMessage"] = "Failed to create job. Please try again.";
             return View(model);
@@ -220,7 +273,7 @@ namespace PartTimeJobManagement.Client.Controllers
             if (role != "Student")
             {
                 TempData["ErrorMessage"] = "Only students can apply for jobs.";
-                return RedirectToAction("Details", new { id = jobId });
+                return RedirectToAction("AccessDenied", "Account");
             }
 
             var userId = HttpContext.Session.GetInt32("UserId");

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,10 +19,16 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all applications (Admin only)
+        /// Get all applications with OData support (Admin only)
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by status: ?$filter=Status eq 'Pending'
+        /// - Sort: ?$orderby=AppliedAt desc
+        /// </remarks>
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ApplicationResponseDTO>>> GetAll()
         {
@@ -45,10 +52,11 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get applications by student
+        /// Get applications by student with OData support
         /// </summary>
         [HttpGet("student/{studentId}")]
         [Authorize(Roles = "Student,Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ApplicationResponseDTO>>> GetByStudent(int studentId)
         {
@@ -57,10 +65,11 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get applications by job
+        /// Get applications by job with OData support
         /// </summary>
         [HttpGet("job/{jobId}")]
         [Authorize(Roles = "Employer,Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<ApplicationResponseDTO>>> GetByJob(int jobId)
         {

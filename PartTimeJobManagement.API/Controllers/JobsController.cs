@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -17,9 +18,17 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all jobs
+        /// Get all jobs with OData support (filtering, sorting, paging)
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter: ?$filter=Salary gt 1000
+        /// - Sort: ?$orderby=CreatedAt desc
+        /// - Page: ?$top=10&amp;$skip=20
+        /// - Select: ?$select=Title,Salary
+        /// </remarks>
         [HttpGet]
+        [EnableQuery(MaxTop = 100, AllowedQueryOptions = AllowedQueryOptions.All)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JobResponseDTO>>> GetAll()
         {
@@ -28,9 +37,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get active jobs only
+        /// Get active jobs only with OData support
         /// </summary>
         [HttpGet("active")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JobResponseDTO>>> GetActive()
         {
@@ -54,9 +64,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get jobs by employer
+        /// Get jobs by employer with OData support
         /// </summary>
         [HttpGet("employer/{employerId}")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JobResponseDTO>>> GetByEmployer(int employerId)
         {
@@ -65,9 +76,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get jobs by category
+        /// Get jobs by category with OData support
         /// </summary>
         [HttpGet("category/{categoryId}")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JobResponseDTO>>> GetByCategory(int categoryId)
         {

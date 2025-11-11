@@ -5,10 +5,14 @@ namespace PartTimeJobManagement.Client.Services
     public interface IJobService
     {
         Task<IEnumerable<JobResponseDTO>?> GetAllJobsAsync();
+        Task<IEnumerable<JobResponseDTO>?> GetAllJobsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<IEnumerable<JobResponseDTO>?> GetActiveJobsAsync();
+        Task<IEnumerable<JobResponseDTO>?> GetActiveJobsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<JobResponseDTO?> GetJobByIdAsync(int id);
         Task<IEnumerable<JobResponseDTO>?> GetJobsByEmployerAsync(int employerId);
+        Task<IEnumerable<JobResponseDTO>?> GetJobsByEmployerAsync(int employerId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<IEnumerable<JobResponseDTO>?> GetJobsByCategoryAsync(int categoryId);
+        Task<IEnumerable<JobResponseDTO>?> GetJobsByCategoryAsync(int categoryId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<JobResponseDTO?> CreateJobAsync(CreateJobDTO jobDto);
         Task<JobResponseDTO?> UpdateJobAsync(int id, UpdateJobDTO jobDto);
         Task<bool> DeleteJobAsync(int id);
@@ -26,9 +30,21 @@ namespace PartTimeJobManagement.Client.Services
             return await GetAsync<IEnumerable<JobResponseDTO>>("api/Jobs");
         }
 
+        public async Task<IEnumerable<JobResponseDTO>?> GetAllJobsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs{queryParams}");
+        }
+
         public async Task<IEnumerable<JobResponseDTO>?> GetActiveJobsAsync()
         {
             return await GetAsync<IEnumerable<JobResponseDTO>>("api/Jobs/active");
+        }
+
+        public async Task<IEnumerable<JobResponseDTO>?> GetActiveJobsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs/active{queryParams}");
         }
 
         public async Task<JobResponseDTO?> GetJobByIdAsync(int id)
@@ -41,9 +57,21 @@ namespace PartTimeJobManagement.Client.Services
             return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs/employer/{employerId}");
         }
 
+        public async Task<IEnumerable<JobResponseDTO>?> GetJobsByEmployerAsync(int employerId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs/employer/{employerId}{queryParams}");
+        }
+
         public async Task<IEnumerable<JobResponseDTO>?> GetJobsByCategoryAsync(int categoryId)
         {
             return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs/category/{categoryId}");
+        }
+
+        public async Task<IEnumerable<JobResponseDTO>?> GetJobsByCategoryAsync(int categoryId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<JobResponseDTO>>($"api/Jobs/category/{categoryId}{queryParams}");
         }
 
         public async Task<JobResponseDTO?> CreateJobAsync(CreateJobDTO jobDto)

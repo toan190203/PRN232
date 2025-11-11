@@ -6,9 +6,12 @@ namespace PartTimeJobManagement.Client.Services
     public interface IPaymentService
     {
         Task<List<PaymentResponseDTO>?> GetAllPaymentsAsync();
+        Task<List<PaymentResponseDTO>?> GetAllPaymentsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<PaymentResponseDTO?> GetPaymentByIdAsync(int id);
         Task<List<PaymentResponseDTO>?> GetPaymentsByContractAsync(int contractId);
+        Task<List<PaymentResponseDTO>?> GetPaymentsByContractAsync(int contractId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<List<PaymentResponseDTO>?> GetPaymentsByStudentAsync(int studentId);
+        Task<List<PaymentResponseDTO>?> GetPaymentsByStudentAsync(int studentId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<PaymentResponseDTO?> CreatePaymentAsync(CreatePaymentDTO payment);
         Task<bool> UpdatePaymentAsync(int id, UpdatePaymentDTO payment);
         Task<bool> DeletePaymentAsync(int id);
@@ -27,6 +30,25 @@ namespace PartTimeJobManagement.Client.Services
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("api/Payments");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<PaymentResponseDTO>>();
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<PaymentResponseDTO>?> GetAllPaymentsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Payments{queryParams}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<List<PaymentResponseDTO>>();
@@ -75,12 +97,50 @@ namespace PartTimeJobManagement.Client.Services
             }
         }
 
+        public async Task<List<PaymentResponseDTO>?> GetPaymentsByContractAsync(int contractId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Payments/contract/{contractId}{queryParams}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<PaymentResponseDTO>>();
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public async Task<List<PaymentResponseDTO>?> GetPaymentsByStudentAsync(int studentId)
         {
             try
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync($"api/Payments/student/{studentId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<PaymentResponseDTO>>();
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public async Task<List<PaymentResponseDTO>?> GetPaymentsByStudentAsync(int studentId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Payments/student/{studentId}{queryParams}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<List<PaymentResponseDTO>>();

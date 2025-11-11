@@ -8,11 +8,13 @@ namespace PartTimeJobManagement.API.Services
     {
         private readonly IJobRepository _jobRepository;
         private readonly IApplicationRepository _applicationRepository;
+        private readonly IEmployerRepository _employerRepository;
 
-        public JobService(IJobRepository jobRepository, IApplicationRepository applicationRepository)
+        public JobService(IJobRepository jobRepository, IApplicationRepository applicationRepository, IEmployerRepository employerRepository)
         {
             _jobRepository = jobRepository;
             _applicationRepository = applicationRepository;
+            _employerRepository = employerRepository;
         }
 
         public async Task<IEnumerable<JobResponseDTO>> GetAllJobsAsync()
@@ -31,6 +33,19 @@ namespace PartTimeJobManagement.API.Services
 
         public async Task<JobResponseDTO> CreateJobAsync(CreateJobDTO dto)
         {
+            // Kiểm tra employer có tồn tại không
+            var employer = await _employerRepository.GetByIdAsync(dto.EmployerId);
+            if (employer == null)
+            {
+                throw new InvalidOperationException("Employer not found.");
+            }
+
+            // Kiểm tra employer đã được verify chưa
+            if (!employer.IsVerified)
+            {
+                throw new InvalidOperationException("Your employer account must be verified before you can post jobs. Please contact admin for verification.");
+            }
+
             var job = new Job
             {
                 EmployerId = dto.EmployerId,

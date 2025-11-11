@@ -62,22 +62,9 @@
                             <td>
                                 @if (payment.Status == "Pending")
                                 {
-                                    <form asp-action="UpdateStatus" method="post" class="d-inline">
-                                        <input type="hidden" name="id" value="@payment.PaymentId" />
-                                        <input type="hidden" name="status" value="Completed" />
-                                        <input type="hidden" name="contractId" value="@ViewBag.ContractId" />
-                                        <button type="submit" class="btn btn-sm btn-success" title="Mark as Completed">
-                                            <i class="bi bi-check-circle"></i> Complete
-                                        </button>
-                                    </form>
-                                    <form asp-action="UpdateStatus" method="post" class="d-inline ms-1">
-                                        <input type="hidden" name="id" value="@payment.PaymentId" />
-                                        <input type="hidden" name="status" value="Failed" />
-                                        <input type="hidden" name="contractId" value="@ViewBag.ContractId" />
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Mark as Failed">
-                                            <i class="bi bi-x-circle"></i> Failed
-                                        </button>
-                                    </form>
+                                    <span class="badge bg-info">
+                                        <i class="bi bi-hourglass-split"></i> Awaiting Student Confirmation
+                                    </span>
                                 }
                                 else
                                 {
