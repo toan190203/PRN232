@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,9 +19,16 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all students
+        /// Get all students with OData support
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by major: ?$filter=Major eq 'Computer Science'
+        /// - Filter by GPA: ?$filter=Gpa ge 3.0
+        /// - Sort: ?$orderby=FullName
+        /// </remarks>
         [HttpGet]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<StudentResponseDTO>>> GetAll()
         {
@@ -43,6 +51,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(student);
         }
 
+        // UNUSED API - Commented out temporarily
+        /*
         /// <summary>
         /// Get students by major
         /// </summary>
@@ -53,6 +63,7 @@ namespace PartTimeJobManagement.API.Controllers
             var students = await _studentService.GetStudentsByMajorAsync(major);
             return Ok(students);
         }
+        */
 
         /// <summary>
         /// Get student by user ID
@@ -69,6 +80,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(student);
         }
 
+        // UNUSED API - Client uses POST /api/Students/profile instead
+        /*
         /// <summary>
         /// Create a new student
         /// </summary>
@@ -88,6 +101,7 @@ namespace PartTimeJobManagement.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        */
 
         /// <summary>
         /// Create student profile for existing user

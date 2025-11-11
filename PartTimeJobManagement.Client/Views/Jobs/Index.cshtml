@@ -30,12 +30,12 @@
             </div>
             <div class="col-md-4">
                 <select name="categoryId" class="form-select" id="categoryFilter">
-                    <option value="">All Categories</option>
+                    <option value="" selected="@(ViewBag.CategoryId == null)">All Categories</option>
                     @if (ViewBag.Categories != null)
                     {
                         foreach (var category in ViewBag.Categories)
                         {
-                            <option value="@category.CategoryId" selected="@(category.CategoryId == ViewBag.CategoryId)">
+                            <option value="@category.CategoryId" selected="@(ViewBag.CategoryId != null && category.CategoryId == ViewBag.CategoryId)">
                                 @category.CategoryName
                             </option>
                         }
@@ -82,6 +82,17 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        // Auto-submit form when category changes
+        $(document).ready(function() {
+            $('#categoryFilter').on('change', function() {
+                $(this).closest('form').submit();
+            });
+        });
+    </script>
+}
 
 <style>
     .text-truncate-3 {

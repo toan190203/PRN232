@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
 using PartTimeJobManagement.API.Models;
 using PartTimeJobManagement.API.DTOs;
@@ -19,8 +20,18 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         // GET: api/Users
+        /// <summary>
+        /// Get all users with OData support (Admin only)
+        /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by role: ?$filter=Role eq 'Student'
+        /// - Filter active users: ?$filter=IsActive eq true
+        /// - Sort: ?$orderby=CreatedAt desc
+        /// </remarks>
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [EnableQuery(MaxTop = 100)]
         public async Task<ActionResult<IEnumerable<UserResponseDTO>>> GetAllUsers()
         {
             var users = await _context.Users

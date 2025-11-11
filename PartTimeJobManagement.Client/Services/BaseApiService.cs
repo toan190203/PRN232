@@ -97,5 +97,30 @@ namespace PartTimeJobManagement.Client.Services
                 return response.ReasonPhrase;
             }
         }
+
+        /// <summary>
+        /// Build OData query string from parameters
+        /// </summary>
+        protected string BuildODataQuery(string? filter = null, string? orderBy = null, int? top = null, int? skip = null, string? select = null)
+        {
+            var queryParams = new List<string>();
+
+            if (!string.IsNullOrEmpty(filter))
+                queryParams.Add($"$filter={filter}");
+
+            if (!string.IsNullOrEmpty(orderBy))
+                queryParams.Add($"$orderby={orderBy}");
+
+            if (top.HasValue)
+                queryParams.Add($"$top={top.Value}");
+
+            if (skip.HasValue)
+                queryParams.Add($"$skip={skip.Value}");
+
+            if (!string.IsNullOrEmpty(select))
+                queryParams.Add($"$select={select}");
+
+            return queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : string.Empty;
+        }
     }
 }

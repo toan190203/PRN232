@@ -6,6 +6,7 @@ namespace PartTimeJobManagement.Client.Services
     public interface IEmployerService
     {
         Task<List<EmployerResponseDTO>> GetAllEmployersAsync();
+        Task<List<EmployerResponseDTO>> GetAllEmployersAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<EmployerResponseDTO?> GetEmployerByIdAsync(int id);
         Task<EmployerResponseDTO?> GetEmployerByUserIdAsync(int userId);
         Task<bool> UpdateEmployerAsync(int id, UpdateEmployerDTO employer);
@@ -25,6 +26,25 @@ namespace PartTimeJobManagement.Client.Services
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("api/Employers");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<List<EmployerResponseDTO>>() ?? new List<EmployerResponseDTO>();
+                }
+                return new List<EmployerResponseDTO>();
+            }
+            catch (Exception)
+            {
+                return new List<EmployerResponseDTO>();
+            }
+        }
+
+        public async Task<List<EmployerResponseDTO>> GetAllEmployersAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+                var response = await _httpClient.GetAsync($"api/Employers{queryParams}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<List<EmployerResponseDTO>>() ?? new List<EmployerResponseDTO>();
@@ -92,6 +112,7 @@ namespace PartTimeJobManagement.Client.Services
         {
             try
             {
+                SetAuthorizationHeader();
                 var response = await _httpClient.DeleteAsync($"api/Employers/{id}");
                 return response.IsSuccessStatusCode;
             }

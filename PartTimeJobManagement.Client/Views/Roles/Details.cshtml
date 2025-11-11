@@ -1,0 +1,74 @@
+@model PartTimeJobManagement.Client.Models.DTOs.RoleResponseDTO
+
+@{
+    ViewData["Title"] = "Role Details";
+}
+
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>
+                <i class="bi bi-info-circle"></i> Role Details
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Admin" asp-action="Dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Roles</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check"></i> Role Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="bi bi-key"></i> Role ID:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            @Model.RoleId
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="bi bi-tag"></i> Role Name:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="badge bg-primary fs-6">@Model.RoleName</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong><i class="bi bi-people"></i> Total Users:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <span class="badge bg-info fs-6">@Model.TotalUsers users</span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.RoleId" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.RoleId" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,10 +19,17 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all payments (Admin only)
+        /// Get all payments with OData support (Admin only)
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by amount: ?$filter=Amount gt 1000
+        /// - Filter by status: ?$filter=PaymentStatus eq 'Paid'
+        /// - Sort: ?$orderby=PaymentDate desc
+        /// </remarks>
         [HttpGet]
         [Authorize(Roles = "Admin")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PaymentResponseDTO>>> GetAll()
         {
@@ -45,9 +53,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get payments by contract
+        /// Get payments by contract with OData support
         /// </summary>
         [HttpGet("contract/{contractId}")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PaymentResponseDTO>>> GetByContract(int contractId)
         {
@@ -56,9 +65,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get payments by student ID
+        /// Get payments by student ID with OData support
         /// </summary>
         [HttpGet("student/{studentId}")]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PaymentResponseDTO>>> GetByStudent(int studentId)
         {
@@ -66,6 +76,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(payments);
         }
 
+        // UNUSED API - Commented out temporarily
+        /*
         /// <summary>
         /// Get payments by status
         /// </summary>
@@ -77,6 +89,7 @@ namespace PartTimeJobManagement.API.Controllers
             var payments = await _paymentService.GetPaymentsByStatusAsync(status);
             return Ok(payments);
         }
+        */
 
         /// <summary>
         /// Create a new payment (Employer/Admin only)
@@ -99,10 +112,10 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Update payment (Employer/Admin only)
+        /// Update payment (Student can confirm, Employer/Admin can edit)
         /// </summary>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Employer,Admin")]
+        [Authorize(Roles = "Student,Employer,Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PaymentResponseDTO>> Update(int id, [FromBody] UpdatePaymentDTO dto)

@@ -68,6 +68,7 @@
                                 <th>Method</th>
                                 <th>Status</th>
                                 <th>Note</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,6 +97,23 @@
                                         }
                                     </td>
                                     <td>@(payment.Description ?? "-")</td>
+                                    <td>
+                                        @if (payment.Status == "Pending")
+                                        {
+                                            <form asp-action="ConfirmPayment" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@payment.PaymentId" />
+                                                <button type="submit" class="btn btn-sm btn-success" 
+                                                        onclick="return confirm('Confirm that you have received this payment?')"
+                                                        title="Confirm Received">
+                                                    <i class="bi bi-check-circle"></i> Confirm
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         </tbody>

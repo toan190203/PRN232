@@ -5,8 +5,11 @@ namespace PartTimeJobManagement.Client.Services
     public interface IApplicationService
     {
         Task<IEnumerable<ApplicationResponseDTO>?> GetAllApplicationsAsync();
+        Task<IEnumerable<ApplicationResponseDTO>?> GetAllApplicationsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByStudentAsync(int studentId);
+        Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByStudentAsync(int studentId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByJobAsync(int jobId);
+        Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByJobAsync(int jobId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null);
         Task<ApplicationResponseDTO?> GetApplicationByIdAsync(int id);
         Task<ApplicationResponseDTO?> CreateApplicationAsync(CreateApplicationDTO applicationDto);
         Task<bool> DeleteApplicationAsync(int id);
@@ -25,14 +28,32 @@ namespace PartTimeJobManagement.Client.Services
             return await GetAsync<IEnumerable<ApplicationResponseDTO>>("api/Applications");
         }
 
+        public async Task<IEnumerable<ApplicationResponseDTO>?> GetAllApplicationsAsync(string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<ApplicationResponseDTO>>($"api/Applications{queryParams}");
+        }
+
         public async Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByStudentAsync(int studentId)
         {
             return await GetAsync<IEnumerable<ApplicationResponseDTO>>($"api/Applications/student/{studentId}");
         }
 
+        public async Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByStudentAsync(int studentId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<ApplicationResponseDTO>>($"api/Applications/student/{studentId}{queryParams}");
+        }
+
         public async Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByJobAsync(int jobId)
         {
             return await GetAsync<IEnumerable<ApplicationResponseDTO>>($"api/Applications/job/{jobId}");
+        }
+
+        public async Task<IEnumerable<ApplicationResponseDTO>?> GetApplicationsByJobAsync(int jobId, string? filter = null, string? orderBy = null, int? top = null, int? skip = null)
+        {
+            var queryParams = BuildODataQuery(filter, orderBy, top, skip);
+            return await GetAsync<IEnumerable<ApplicationResponseDTO>>($"api/Applications/job/{jobId}{queryParams}");
         }
 
         public async Task<ApplicationResponseDTO?> GetApplicationByIdAsync(int id)

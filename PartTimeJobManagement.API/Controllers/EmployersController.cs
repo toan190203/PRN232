@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -18,9 +19,16 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all employers
+        /// Get all employers with OData support
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter by industry: ?$filter=Industry eq 'IT'
+        /// - Filter verified: ?$filter=IsVerified eq true
+        /// - Sort: ?$orderby=CompanyName
+        /// </remarks>
         [HttpGet]
+        [EnableQuery(MaxTop = 100)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<EmployerResponseDTO>>> GetAll()
         {
@@ -28,6 +36,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(employers);
         }
 
+        // UNUSED API - Commented out temporarily
+        /*
         /// <summary>
         /// Get verified employers only
         /// </summary>
@@ -39,6 +49,7 @@ namespace PartTimeJobManagement.API.Controllers
             var employers = await _employerService.GetVerifiedEmployersAsync();
             return Ok(employers);
         }
+        */
 
         /// <summary>
         /// Get employer by ID
@@ -70,6 +81,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(employer);
         }
 
+        // UNUSED API - Employer created via Auth/Register
+        /*
         /// <summary>
         /// Create a new employer
         /// </summary>
@@ -89,6 +102,7 @@ namespace PartTimeJobManagement.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        */
 
         /// <summary>
         /// Update employer information

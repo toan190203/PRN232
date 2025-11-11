@@ -161,10 +161,10 @@ namespace PartTimeJobManagement.Client.Controllers
             return View(payments ?? Enumerable.Empty<PaymentResponseDTO>());
         }
 
-        // POST: Payments/UpdateStatus/5
+        // POST: Payments/ConfirmPayment/5 (for students)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int id, string status, int? contractId)
+        public async Task<IActionResult> ConfirmPayment(int id)
         {
             if (!_authService.IsAuthenticated())
             {
@@ -172,33 +172,29 @@ namespace PartTimeJobManagement.Client.Controllers
             }
 
             var role = _authService.GetCurrentUserRole();
-            if (role != "Employer" && role != "Admin")
+            if (role != "Student")
             {
+                TempData["ErrorMessage"] = "Only students can confirm payments.";
                 return RedirectToAction("AccessDenied", "Account");
             }
 
             var updateDto = new UpdatePaymentDTO
             {
-                Status = status
+                Status = "Completed"
             };
 
             var result = await _paymentService.UpdatePaymentAsync(id, updateDto);
 
             if (result)
             {
-                TempData["SuccessMessage"] = $"Payment status updated to {status}!";
+                TempData["SuccessMessage"] = "Payment confirmed successfully! Thank you for confirming.";
             }
             else
             {
-                TempData["ErrorMessage"] = "Failed to update payment status.";
+                TempData["ErrorMessage"] = "Failed to confirm payment.";
             }
 
-            if (contractId.HasValue)
-            {
-                return RedirectToAction(nameof(Index), new { contractId = contractId.Value });
-            }
-
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MyPayments));
         }
 
         // POST: Payments/Delete/5

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using PartTimeJobManagement.API.DTOs;
 using PartTimeJobManagement.API.Services;
 
@@ -17,9 +18,15 @@ namespace PartTimeJobManagement.API.Controllers
         }
 
         /// <summary>
-        /// Get all job categories
+        /// Get all job categories with OData support
         /// </summary>
+        /// <remarks>
+        /// Examples:
+        /// - Filter: ?$filter=TotalJobs gt 0
+        /// - Sort: ?$orderby=CategoryName
+        /// </remarks>
         [HttpGet]
+        [EnableQuery(MaxTop = 50)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JobCategoryResponseDTO>>> GetAll()
         {
@@ -42,6 +49,8 @@ namespace PartTimeJobManagement.API.Controllers
             return Ok(category);
         }
 
+        // UNUSED ADMIN APIs - Commented out temporarily
+        /*
         /// <summary>
         /// Create a new job category (Admin only)
         /// </summary>
@@ -97,5 +106,6 @@ namespace PartTimeJobManagement.API.Controllers
 
             return NoContent();
         }
+        */
     }
 }
